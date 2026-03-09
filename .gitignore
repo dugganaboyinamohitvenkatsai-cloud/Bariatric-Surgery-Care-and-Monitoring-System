@@ -1,0 +1,21 @@
+# IDE / Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Compiled Java
+*.class
+*.jar
+*.war
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Gemini AI
+.gemini/

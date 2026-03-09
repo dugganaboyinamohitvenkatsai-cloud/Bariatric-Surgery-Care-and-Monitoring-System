@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bariatric Care - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styled.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <div class="dashboard-wrapper">
+
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <h2>BariatricCare</h2>
+            </div>
+            <ul class="nav-links">
+                <li onclick="goHome()" id="nav-dashboardHome" class="active">Dashboard Home</li>
+                <li onclick="showSection('preSection')" id="nav-preSection">Pre-Surgery</li>
+                <li onclick="showSection('postSection')" id="nav-postSection">Post-Surgery</li>
+                <li onclick="showSection('reportSection')" id="nav-reportSection">Reports & Analytics</li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <header class="top-bar">
+                <h2 id="welcome-text">Welcome, User</h2>
+                <div class="user-profile">
+                    <img id="user-avatar"
+                        src="https://ui-avatars.com/api/?name=User&background=0f4c81&color=fff&rounded=true"
+                        alt="Avatar">
+                </div>
+            </header>
+
+            <div class="content-container">
+                <!-- Dashboard Home -->
+                <div id="dashboardHome" class="section">
+                    <div class="section-header">
+                        <h3>Overview</h3>
+                        <p>Select a module to continue managing patient care.</p>
+                    </div>
+
+                    <div class="card-container">
+                        <div class="card" onclick="showSection('preSection')">
+                            <div class="card-icon">🩺</div>
+                            <h3>Pre-Surgery</h3>
+                            <p>Record baseline metrics and approvals.</p>
+                        </div>
+
+                        <div class="card" onclick="showSection('postSection')">
+                            <div class="card-icon">📈</div>
+                            <h3>Post-Surgery</h3>
+                            <p>Log weekly weight, BP, and sugar levels.</p>
+                        </div>
+
+                        <div class="card" onclick="showSection('reportSection')">
+                            <div class="card-icon">📊</div>
+                            <h3>Reports</h3>
+                            <p>View progress and health analytics.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pre Surgery Section -->
+                <div id="preSection" class="section hidden">
+                    <div class="section-header">
+                        <h3>Pre-Surgery Care Module</h3>
+                        <p>Enter the patient's exact details prior to the procedure.</p>
+                    </div>
+
+                    <form class="form-container" onsubmit="event.preventDefault(); savePreData();">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="pname">Patient Name</label>
+                                <input type="text" id="pname" placeholder="e.g. John Doe" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" placeholder="Years" required min="18" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="weight">Weight (kg)</label>
+                                <input type="number" id="weight" placeholder="e.g. 120" required min="40">
+                            </div>
+                            <div class="form-group">
+                                <label for="height">Height (cm)</label>
+                                <input type="number" id="height" placeholder="e.g. 175" required min="100">
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-secondary" onclick="calculateBMI()">Calculate Initial
+                            BMI</button>
+                        <p id="bmiResult" class="result-text"></p>
+
+                        <div class="form-group full-width">
+                            <label for="conditions">Medical Conditions</label>
+                            <textarea id="conditions"
+                                placeholder="List any pre-existing conditions (e.g. Type 2 Diabetes)"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="approval">Surgeon Approval</label>
+                            <select id="approval" required>
+                                <option value="">Select Status...</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Not Approved">Not Approved</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Save Pre-Surgery Data</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Post Surgery Section -->
+                <div id="postSection" class="section hidden">
+                    <div class="section-header">
+                        <h3>Post-Surgery Monitoring Module</h3>
+                        <p>Log new readings periodically to track recovery.</p>
+                    </div>
+
+                    <form class="form-container" onsubmit="event.preventDefault(); savePostData();">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="postWeight">Current Weight (kg)</label>
+                                <input type="number" id="postWeight" placeholder="e.g. 115" required min="30">
+                            </div>
+                            <div class="form-group">
+                                <label for="bp">Blood Pressure (Systolic)</label>
+                                <input type="number" id="bp" placeholder="e.g. 120" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sugar">Blood Sugar Level (mg/dL)</label>
+                                <input type="number" id="sugar" placeholder="e.g. 95" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="symptoms">Symptoms / Notes</label>
+                            <textarea id="symptoms" placeholder="How is the patient feeling?"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Save Monitoring Data</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Reports Section -->
+                <div id="reportSection" class="section hidden">
+                    <div class="section-header">
+                        <h3>Health & Progress Analytics</h3>
+                        <button class="btn-secondary" onclick="viewReports()">Refresh Data</button>
+                    </div>
+
+                    <div class="report-dashboard">
+                        <!-- Key Metrics Grid -->
+                        <div class="metrics-grid" id="metricsCards">
+                            <!-- Metrics will be injected here via JS -->
+                        </div>
+
+                        <!-- Chart Area -->
+                        <div class="chart-container">
+                            <canvas id="weightProgressChart"></canvas>
+                        </div>
+
+                        <!-- Detailed Logs Area -->
+                        <div class="logs-container">
+                            <h4>Detailed Monitoring Logs</h4>
+                            <div id="reportOutput" class="report-output">
+                                <!-- Logs will be injected here via JS -->
+                                <p class="empty-state">No data available. Click "Refresh Data" to view logs.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
