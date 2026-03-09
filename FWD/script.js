@@ -1,3 +1,58 @@
+// =======================================
+// Bariatric Surgery Care & Monitoring System
+// Main Application Logic (script.js)
+// =======================================
+
+// ===== Toast Notification System =====
+
+function showToast(message, type = 'success') {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const icons = {
+        success: '✓',
+        warning: '!',
+        error: '✗',
+        info: 'i'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || icons.info}</span>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto-dismiss after 3.5 seconds
+    setTimeout(() => {
+        toast.classList.add('toast-exit');
+        setTimeout(() => toast.remove(), 300);
+    }, 3500);
+}
+
+// ===== Password Visibility Toggle =====
+
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const btn = input.parentElement.querySelector('.toggle-password');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = 'Hide';
+    } else {
+        input.type = 'password';
+        btn.textContent = 'Show';
+    }
+}
+
+// ===== Authentication =====
+
 function login() {
     let email = document.getElementById("email").value.trim();
     let username = document.getElementById("username").value.trim();
@@ -6,7 +61,7 @@ function login() {
 
     if (!email || !username || !password) {
         errorMsg.textContent = "Please fill all fields!";
-        errorMsg.style.color = "red";
+        errorMsg.style.color = "#ef4444";
         return;
     }
 
@@ -14,7 +69,7 @@ function login() {
 
     let isValid = false;
 
-    // Check credentials (hardcoded or from local storage)
+    // Check credentials (hardcoded demo accounts or from local storage)
     if ((username === "Srinivas" || username === "admin") && password === "1234") {
         isValid = true;
     } else if (users[username]) {
@@ -31,7 +86,7 @@ function login() {
         window.location.href = "dashboard.html";
     } else {
         errorMsg.textContent = "Invalid email, username, or password!";
-        errorMsg.style.color = "red";
+        errorMsg.style.color = "#ef4444";
     }
 }
 
@@ -43,7 +98,20 @@ function signup() {
 
     if (!newEmail || !newUsername || !newPassword) {
         errorMsg.textContent = "Please fill all fields!";
-        errorMsg.style.color = "red";
+        errorMsg.style.color = "#ef4444";
+        return;
+    }
+
+    // Basic email validation
+    if (!newEmail.includes('@') || !newEmail.includes('.')) {
+        errorMsg.textContent = "Please enter a valid email address!";
+        errorMsg.style.color = "#ef4444";
+        return;
+    }
+
+    if (newPassword.length < 4) {
+        errorMsg.textContent = "Password must be at least 4 characters!";
+        errorMsg.style.color = "#ef4444";
         return;
     }
 
@@ -51,12 +119,12 @@ function signup() {
 
     if (users[newUsername] || newUsername === "Srinivas" || newUsername === "admin") {
         errorMsg.textContent = "Username already exists!";
-        errorMsg.style.color = "red";
+        errorMsg.style.color = "#ef4444";
     } else {
         users[newUsername] = { password: newPassword, email: newEmail };
         localStorage.setItem("users", JSON.stringify(users));
-        errorMsg.textContent = "Registration successful! Please sign in.";
-        errorMsg.style.color = "green";
+        errorMsg.textContent = "Registration successful! Redirecting to login...";
+        errorMsg.style.color = "#10b981";
         setTimeout(() => toggleAuthMode(), 1500);
     }
 }
@@ -82,12 +150,12 @@ function toggleAuthMode() {
     }
 }
 
-// Protect dashboard page
+// ===== Dashboard Protection & Initialization =====
+
 if (window.location.pathname.includes("dashboard.html")) {
     if (localStorage.getItem("loggedIn") !== "true") {
         window.location.href = "login_page.html";
     } else {
-        // Initialize dashboard UI
         window.addEventListener("DOMContentLoaded", () => {
             let currentUser = localStorage.getItem("currentUser") || "User";
             let h2 = document.getElementById("welcome-text");
@@ -100,13 +168,14 @@ if (window.location.pathname.includes("dashboard.html")) {
                 localStorage.setItem("patientsData", JSON.stringify({}));
             }
 
-            // CO4: Async API Integration
+            // CO4: Async API Integration — Daily Motivational Quote
             fetchDailyMotivation();
         });
     }
 }
 
-// CO4: Async API Integration
+// ===== CO4: Async API Integration =====
+
 async function fetchDailyMotivation() {
     let quoteEl = document.getElementById("daily-quote");
     if (!quoteEl) return;
@@ -121,6 +190,9 @@ async function fetchDailyMotivation() {
         console.error("Failed to fetch quote:", error);
     }
 }
+
+// ===== Navigation =====
+
 function showSection(sectionId) {
     document.getElementById("dashboardHome").classList.add("hidden");
     document.getElementById("preSection").classList.add("hidden");
@@ -135,7 +207,7 @@ function showSection(sectionId) {
     let activeNav = document.getElementById("nav-" + sectionId);
     if (activeNav) activeNav.classList.add("active");
 
-    // Auto refresh reports if going to report section
+    // Auto refresh reports when navigating to report section
     if (sectionId === 'reportSection') {
         viewReports();
     }
@@ -143,13 +215,22 @@ function showSection(sectionId) {
 
 function goHome() {
     showSection('dashboardHome');
+    // Re-activate the Dashboard Home nav item
+    document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+    let homeNav = document.getElementById("nav-dashboardHome");
+    if (homeNav) homeNav.classList.add("active");
 }
 
 function logout() {
-    localStorage.removeItem("loggedIn");
-    localStorage.removeItem("currentUser");
-    window.location.href = "login_page.html";
+    if (confirm("Are you sure you want to logout?")) {
+        localStorage.removeItem("loggedIn");
+        localStorage.removeItem("currentUser");
+        window.location.href = "login_page.html";
+    }
 }
+
+// ===== Pre-Surgery Data =====
+
 function calculateBMI() {
     let weight = document.getElementById("weight").value;
     let height = document.getElementById("height").value / 100;
@@ -165,21 +246,35 @@ function calculateBMI() {
 
         document.getElementById("bmiResult").textContent =
             "BMI: " + bmi + " (" + category + ")";
+    } else {
+        showToast("Please enter both weight and height first.", "warning");
     }
 }
 
 function savePreData() {
     let currentUser = localStorage.getItem("currentUser");
-    if (!currentUser) { alert("You must be logged in!"); return; }
+    if (!currentUser) { showToast("You must be logged in!", "error"); return; }
+
+    let pname = document.getElementById("pname").value.trim();
+    let age = document.getElementById("age").value;
+    let weight = document.getElementById("weight").value;
+    let height = document.getElementById("height").value;
+    let approval = document.getElementById("approval").value;
+
+    // Validate required fields
+    if (!pname || !age || !weight || !height || !approval) {
+        showToast("Please fill all required fields.", "warning");
+        return;
+    }
 
     let data = {
-        name: document.getElementById("pname").value,
-        age: document.getElementById("age").value,
-        weight: document.getElementById("weight").value,
-        height: document.getElementById("height").value,
+        name: pname,
+        age: age,
+        weight: weight,
+        height: height,
         bmi: document.getElementById("bmiResult").textContent,
         conditions: document.getElementById("conditions").value,
-        approval: document.getElementById("approval").value,
+        approval: approval,
         date: new Date().toISOString().split('T')[0]
     };
 
@@ -192,26 +287,38 @@ function savePreData() {
     }
 
     localStorage.setItem("patientsData", JSON.stringify(patientsData));
-    alert("Pre-Surgery Data Saved Successfully!");
+    showToast("Pre-Surgery data saved successfully!", "success");
+
+    // Reset form fields
+    document.getElementById("pname").value = "";
+    document.getElementById("age").value = "";
+    document.getElementById("weight").value = "";
+    document.getElementById("height").value = "";
+    document.getElementById("conditions").value = "";
+    document.getElementById("approval").value = "";
+    document.getElementById("bmiResult").textContent = "";
 }
+
+// ===== Post-Surgery Data =====
+
 function savePostData() {
     let weight = document.getElementById("postWeight").value;
     let bp = document.getElementById("bp").value;
     let sugar = document.getElementById("sugar").value;
     let symptoms = document.getElementById("symptoms").value;
 
-    let alertMessage = "";
+    if (!weight || !bp || !sugar) {
+        showToast("Please fill Weight, BP, and Sugar fields.", "warning");
+        return;
+    }
 
+    // Health alerts via toast notifications
     if (bp > 140) {
-        alertMessage += "High Blood Pressure Alert!\n";
+        showToast("High Blood Pressure detected! (" + bp + " mmHg)", "warning");
     }
 
     if (sugar > 180) {
-        alertMessage += "High Blood Sugar Alert!\n";
-    }
-
-    if (alertMessage !== "") {
-        alert(alertMessage);
+        showToast("High Blood Sugar detected! (" + sugar + " mg/dL)", "warning");
     }
 
     let data = {
@@ -223,7 +330,7 @@ function savePostData() {
     };
 
     let currentUser = localStorage.getItem("currentUser");
-    if (!currentUser) { alert("You must be logged in!"); return; }
+    if (!currentUser) { showToast("You must be logged in!", "error"); return; }
 
     let patientsData = JSON.parse(localStorage.getItem("patientsData")) || {};
     if (!patientsData[currentUser]) patientsData[currentUser] = { preSurgery: null, postSurgeryRecords: [] };
@@ -232,8 +339,17 @@ function savePostData() {
     patientsData[currentUser].postSurgeryRecords.push(data);
 
     localStorage.setItem("patientsData", JSON.stringify(patientsData));
-    alert("Monitoring Data Saved Successfully!");
+    showToast("Monitoring data saved successfully!", "success");
+
+    // Reset form fields
+    document.getElementById("postWeight").value = "";
+    document.getElementById("bp").value = "";
+    document.getElementById("sugar").value = "";
+    document.getElementById("symptoms").value = "";
 }
+
+// ===== Reports & Analytics =====
+
 let weightChartInstance = null;
 
 function viewReports() {
@@ -248,7 +364,7 @@ function viewReports() {
 
     if (!userData || (!userData.preSurgery && (!userData.postSurgeryRecords || userData.postSurgeryRecords.length === 0))) {
         metricsCards.innerHTML = "";
-        reportOutput.innerHTML = "<p class='empty-state'>No data available. Please fill out Pre-Surgery care first.</p>";
+        reportOutput.innerHTML = "<p class='empty-state'>No data available yet. Start by filling out the Pre-Surgery module.</p>";
         if (weightChartInstance) weightChartInstance.destroy();
         return;
     }
@@ -257,20 +373,21 @@ function viewReports() {
     let records = userData.postSurgeryRecords || [];
     let latestPost = records.length > 0 ? records[records.length - 1] : null;
 
-    // Calculate EWL % (Excess Weight Loss)
+    // Calculate key metrics
     let ewlDisplay = "N/A";
     let currentBMI = pre ? pre.bmi : "N/A";
     let weightLossDisplay = "0 kg";
+    let totalRecords = records.length;
 
     if (pre && latestPost) {
         let preWeight = parseFloat(pre.weight);
         let currentWeight = parseFloat(latestPost.weight);
         let heightM = parseFloat(pre.height) / 100;
 
-        // Calculate new BMI
+        // Recalculate current BMI
         currentBMI = (currentWeight / (heightM * heightM)).toFixed(2);
 
-        // EWL Calc
+        // EWL % (Excess Weight Loss) Calculation
         let idealWeight = 25 * (heightM * heightM);
         let excessWeight = preWeight - idealWeight;
         let weightLoss = preWeight - currentWeight;
@@ -283,7 +400,7 @@ function viewReports() {
         }
     }
 
-    // Update Metrics Dashboard
+    // Render Metrics Cards
     metricsCards.innerHTML = `
         <div class="metric-card">
             <h4>Total Weight Loss</h4>
@@ -297,20 +414,23 @@ function viewReports() {
             <h4>EWL % (Excess Weight Loss)</h4>
             <div class="value">${ewlDisplay}</div>
         </div>
+        <div class="metric-card">
+            <h4>Total Check-ins</h4>
+            <div class="value">${totalRecords}</div>
+        </div>
     `;
 
-    // Render Logs Output
+    // Render Logs using Semantic HTML Table (CO2)
     let htmlOutput = "";
     if (pre) {
         htmlOutput += `
-            <div class="log-entry" style="background: rgba(15, 76, 129, 0.05); margin-bottom: 20px;">
+            <div class="log-entry" style="background: rgba(15, 76, 129, 0.04); margin-bottom: 16px; border-radius: 10px;">
                 <strong>Pre-Surgery Baseline (${pre.date}):</strong><br>
-                Weight: ${pre.weight}kg | Height: ${pre.height}cm | BMI: ${pre.bmi} | Clearance: ${pre.approval || 'Pending'}
+                Patient: ${pre.name || 'N/A'} | Weight: ${pre.weight}kg | Height: ${pre.height}cm | BMI: ${pre.bmi} | Clearance: ${pre.approval || 'Pending'}
             </div>
         `;
     }
 
-    // CO2: Using Semantic HTML Tables instead of just divs
     if (records.length > 0) {
         htmlOutput += `
             <table class="monitoring-table">
@@ -326,6 +446,7 @@ function viewReports() {
                 <tbody>
         `;
 
+        // CO3: Array methods — slice, reverse, forEach
         records.slice().reverse().forEach(log => {
             htmlOutput += `
                 <tr>
@@ -333,7 +454,7 @@ function viewReports() {
                     <td>${log.weight}</td>
                     <td>${log.bp}</td>
                     <td>${log.sugar}</td>
-                    <td>${log.symptoms || "None"}</td>
+                    <td>${log.symptoms || "—"}</td>
                 </tr>
             `;
         });
@@ -346,7 +467,8 @@ function viewReports() {
 
     reportOutput.innerHTML = htmlOutput;
 
-    // Render Chart using Chart.js
+    // ===== Chart.js: Weight Progression =====
+
     let labels = [];
     let dataPoints = [];
 
@@ -374,21 +496,40 @@ function viewReports() {
                     label: 'Weight Progression (kg)',
                     data: dataPoints,
                     borderColor: '#0f4c81',
-                    backgroundColor: 'rgba(15, 76, 129, 0.1)',
+                    backgroundColor: 'rgba(15, 76, 129, 0.08)',
                     borderWidth: 3,
                     pointBackgroundColor: '#3fa9f5',
-                    pointRadius: 5,
+                    pointBorderColor: '#0f4c81',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
                     fill: true,
-                    tension: 0.3
+                    tension: 0.35
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: { family: "'Inter', sans-serif", weight: 600 },
+                            padding: 20
+                        }
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: false,
-                        title: { display: true, text: 'Weight (kg)' }
+                        title: {
+                            display: true,
+                            text: 'Weight (kg)',
+                            font: { family: "'Inter', sans-serif", weight: 600 }
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
                     }
                 }
             }
