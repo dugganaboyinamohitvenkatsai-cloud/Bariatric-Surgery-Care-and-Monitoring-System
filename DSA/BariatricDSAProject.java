@@ -152,7 +152,7 @@ public class BariatricDSAProject {
 
         for (PatientRecord r : records) {
             if (r.weight == searchWeight) {
-                System.out.println("  ✅ Match found:");
+                System.out.println("   Match found:");
                 r.display();
                 searchFound = true;
                 break;
@@ -160,7 +160,7 @@ public class BariatricDSAProject {
         }
 
         if (!searchFound) {
-            System.out.println("  ❌ No record found with weight " + searchWeight + " kg.");
+            System.out.println("   No record found with weight " + searchWeight + " kg.");
         }
 
         
