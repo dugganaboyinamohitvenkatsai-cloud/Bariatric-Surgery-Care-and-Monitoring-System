@@ -2,24 +2,7 @@ package DSA;
 
 import java.util.*;
 
-/**
- * Bariatric Surgery Monitoring System - DSA Demonstration
- * 
- * This program demonstrates how core Data Structures and Algorithms
- * can be applied to a real-world healthcare monitoring scenario.
- * 
- * DSA Concepts Demonstrated:
- *  1. ArrayList  — Sequential storage of patient monitoring records
- *  2. Stack      — LIFO access to weight history (most recent first)
- *  3. Queue      — FIFO patient monitoring order
- *  4. HashMap    — O(1) patient lookup by name
- *  5. Linear Search — Finding a specific weight record
- *  6. Bubble Sort   — Sorting weight data in ascending order
- * 
- * @author Mohit Venkat Sai Dugganaboyina
- */
 
-// Class representing a single patient monitoring record
 class PatientRecord {
 
     String name;
@@ -45,11 +28,7 @@ class PatientRecord {
 public class BariatricDSAProject {
 
     // Utility method to print section dividers
-    static void printDivider(String title) {
-        System.out.println("\n" + "=".repeat(60));
-        System.out.println("  " + title);
-        System.out.println("=".repeat(60));
-    }
+    
 
     public static void main(String[] args) {
 
@@ -57,10 +36,9 @@ public class BariatricDSAProject {
         System.out.println("║   Bariatric Surgery Monitoring System — DSA Demo        ║");
         System.out.println("╚══════════════════════════════════════════════════════════╝");
 
-        // ------------------------------------------
-        // 1. ARRAYLIST — Sequential Record Storage
-        // ------------------------------------------
-        printDivider("1. ARRAYLIST — Patient Monitoring Records");
+    
+        
+        
 
         ArrayList<PatientRecord> records = new ArrayList<>();
 
@@ -79,7 +57,7 @@ public class BariatricDSAProject {
         // ------------------------------------------
         // 2. STACK — Weight History (LIFO)
         // ------------------------------------------
-        printDivider("2. STACK — Weight History (Latest First)");
+
 
         Stack<Double> weightHistory = new Stack<>();
 
@@ -101,7 +79,7 @@ public class BariatricDSAProject {
         // ------------------------------------------
         // 3. QUEUE — Patient Monitoring Order (FIFO)
         // ------------------------------------------
-        printDivider("3. QUEUE — Patient Monitoring Order (FIFO)");
+
 
         Queue<String> patientQueue = new LinkedList<>();
 
@@ -118,9 +96,30 @@ public class BariatricDSAProject {
         }
 
         // ------------------------------------------
-        // 4. HASHMAP — Patient Lookup by Name O(1)
+        // 4. PRIORITY QUEUE — Patient Severity (High BP)
         // ------------------------------------------
-        printDivider("4. HASHMAP — Patient Lookup by Name");
+
+
+        PriorityQueue<PatientRecord> priorityQueue = new PriorityQueue<>(
+                (p1, p2) -> Integer.compare(p2.bloodPressure, p1.bloodPressure)
+        );
+
+        priorityQueue.add(new PatientRecord("John", "2024-01-22", 108.2, 128, 140));
+        priorityQueue.add(new PatientRecord("David", "2024-01-01", 135.0, 145, 190));
+        priorityQueue.add(new PatientRecord("Maria", "2024-01-01", 98.0, 120, 110));
+
+        System.out.println("\n  Processing patients based on Blood Pressure priority:\n");
+
+        int pqIndex = 1;
+        while (!priorityQueue.isEmpty()) {
+            PatientRecord p = priorityQueue.poll();
+            System.out.printf("    %d. %-8s | BP: %3d%n", pqIndex++, p.name, p.bloodPressure);
+        }
+
+        // ------------------------------------------
+        // 5. HASHMAP — Patient Lookup by Name O(1)
+        // ------------------------------------------
+
 
         HashMap<String, PatientRecord> patientMap = new HashMap<>();
 
@@ -142,9 +141,9 @@ public class BariatricDSAProject {
         System.out.println("    Result: " + (notFound == null ? "Patient not found" : notFound.name));
 
         // ------------------------------------------
-        // 5. LINEAR SEARCH — Find a Weight Record
+        // 6. LINEAR SEARCH — Find a Weight Record
         // ------------------------------------------
-        printDivider("5. LINEAR SEARCH — Find Record by Weight");
+
 
         double searchWeight = 110.0;
         boolean searchFound = false;
@@ -164,10 +163,8 @@ public class BariatricDSAProject {
             System.out.println("  ❌ No record found with weight " + searchWeight + " kg.");
         }
 
-        // ------------------------------------------
-        // 6. BUBBLE SORT — Sort Weights Ascending
-        // ------------------------------------------
-        printDivider("6. BUBBLE SORT — Sorted Weight Records");
+        
+
 
         double[] weights = new double[records.size()];
 
@@ -193,15 +190,16 @@ public class BariatricDSAProject {
         // ------------------------------------------
         // Summary
         // ------------------------------------------
-        printDivider("SUMMARY — DSA Concepts Demonstrated");
+
 
         System.out.println();
-        System.out.println("  ✅ 1. ArrayList   — Storing sequential patient records");
-        System.out.println("  ✅ 2. Stack       — Viewing weight history in LIFO order");
-        System.out.println("  ✅ 3. Queue       — Managing patient monitoring queue (FIFO)");
-        System.out.println("  ✅ 4. HashMap     — O(1) patient lookup by name");
-        System.out.println("  ✅ 5. Linear Search — Find a specific weight record");
-        System.out.println("  ✅ 6. Bubble Sort — Sort weight data in ascending order");
+        System.out.println("   1. ArrayList     — Storing sequential patient records");
+        System.out.println("   2. Stack         — Viewing weight history in LIFO order");
+        System.out.println("   3. Queue         — Managing patient monitoring queue (FIFO)");
+        System.out.println("   4. PriorityQueue — Sorting patients by severity (High BP)");
+        System.out.println("   5. HashMap       — O(1) patient lookup by name");
+        System.out.println("   6. Linear Search — Find a specific weight record");
+        System.out.println("   7. Bubble Sort   — Sort weight data in ascending order");
         System.out.println();
     }
 }
